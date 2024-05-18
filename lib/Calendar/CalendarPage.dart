@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connect/Addappointment.dart';
-import 'package:connect/AppointmentDetailsPage.dart';
-import 'package:connect/Appointments.dart';
-import 'package:connect/main.dart';
 import 'package:flutter/material.dart';
+import 'package:CampusConnect/Calendar/Appointments.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:CampusConnect/Calendar/Addappointment.dart';
+import 'package:CampusConnect/Calendar/AppointmentDetailsPage.dart';
+import 'package:CampusConnect/main.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -21,6 +21,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendar Page'),
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -28,7 +29,7 @@ class _CalendarPageState extends State<CalendarPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Addappointment()),
+                MaterialPageRoute(builder: (context) => const AddAppointment()),
               );
             },
           ),
@@ -44,10 +45,11 @@ class _CalendarPageState extends State<CalendarPage> {
           } else {
             List<Appointment> appointments = snapshot.data!;
             return SfCalendar(
-              view: CalendarView.week,
+              view: CalendarView.month,
               allowedViews: [
-                CalendarView.day,
+                CalendarView.month,
                 CalendarView.week,
+                CalendarView.day,
               ],
               controller: _controller,
               initialDisplayDate: DateTime.now(),
@@ -80,7 +82,7 @@ class _CalendarPageState extends State<CalendarPage> {
       final subject2 = appointment.id;
 
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('Appointments').get();
+      await FirebaseFirestore.instance.collection('Appointments').get();
       querySnapshot.docs.forEach((doc) {
         var field1 = doc.get("startTime");
         var field2 = doc.get("appointmentLength");
@@ -94,9 +96,6 @@ class _CalendarPageState extends State<CalendarPage> {
         final DateTime startTime1 = (field1 as Timestamp).toDate();
         final DateTime date = (field3 as Timestamp).toDate();
         DateTime onlyDate = DateTime(date.year, date.month, date.day);
-        //final DateTime endTime1 = startTime1.add(Duration(hours: field2));
-        //final DateTime mergedDateTime = mergeDateTime(date, startTime1);
-        //final DateTime mergedDateTime1 = mergeDateTime(date, endTime1);
 
         if ((field5 == subject2 && field4 == subject)) {
           Globals.app = Appointments(
@@ -124,9 +123,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Future<List<Appointment>> getAppointments() async {
     List<Appointment> meetings = <Appointment>[];
+    bool check = false;
 
     QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('Appointments').get();
+    await FirebaseFirestore.instance.collection('Appointments').get();
     querySnapshot.docs.forEach((doc) {
       var field1 = doc.get("startTime");
       var field2 = doc.get("appointmentLength");
@@ -147,7 +147,17 @@ class _CalendarPageState extends State<CalendarPage> {
         appointmentColor = Colors.red;
       }
 
-      if ((field5 == Globals.userID && field6 == false) || field6 == true) {
+      for (int i = 0; i < Globals.Schedule.length; i++) {
+        if (Globals.Schedule[i] == "Public" ||
+            Globals.Schedule[i] == "Private") {
+        } else if (field6 == Globals.Schedule[i]) {
+          check = true;
+        }
+      }
+      if ((field5 == Globals.userID && field6 == "Private") ||
+          field6 == "Public" ||
+          check) {
+        check = false;
         meetings.add(Appointment(
           startTime: mergedDateTime,
           endTime: mergedDateTime1,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:connect/Posts.dart';
+import 'package:CampusConnect/Posts.dart';
 
 class PostWidget extends StatefulWidget {
   final Posts post;
