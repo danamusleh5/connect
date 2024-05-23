@@ -1,9 +1,15 @@
+import 'package:CampusConnect/Locale/locale.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:CampusConnect/Calendar/Appointments.dart';
 import 'package:CampusConnect/Main_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:CampusConnect/Posts.dart';
+import 'package:get/get.dart';
+import 'package:CampusConnect/Locale/locale.dart';
+
+import 'Locale/locale_controller.dart';
 
 class Globals {
   static String userID = "";
@@ -31,6 +37,17 @@ Future<void> main() async {
         messagingSenderId: "476838126677",
         projectId: "campus-connect-3917b",
         storageBucket: "campus-connect-3917b.appspot.com"),
+  );
+  AwesomeNotifications().initialize(
+    null,
+    [
+       NotificationChannel(
+           channelKey: 'basic_channel',
+           channelName: 'Basic Notifications',
+           channelDescription: 'Notification '
+       ),
+    ],
+    debug: true,
   );
 }
 
@@ -96,13 +113,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    MyLocaleController controllerLang =  Get.put(MyLocaleController());
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'CampusConnect',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      locale: controllerLang.initialLang,
+      translations: MyLocale(),
       home: const MyHomePage(title: 'Connect Login'),
     );
   }

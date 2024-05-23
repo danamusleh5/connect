@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+
 class ChangePasswordPage extends StatefulWidget {
   @override
   _ChangePasswordPageState createState() => _ChangePasswordPageState();
@@ -15,7 +15,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Password Changed'),
+          title: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green), // Add icon here
+              SizedBox(width: 10),
+              Text('Password Changed'),
+            ],
+          ),
           content: Text('Your password has been successfully changed.'),
           actions: <Widget>[
             TextButton(
@@ -30,12 +36,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
+
   void _showPasswordMismatchAlert(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Passwords Mismatch'),
+          title: Row(
+            children: [
+              Icon(Icons.error, color: Colors.red), // Add icon here
+              SizedBox(width: 10),
+              Text('Passwords Mismatch'),
+            ],
+          ),
           content: Text('The new password and confirm password do not match.'),
           actions: <Widget>[
             TextButton(
@@ -50,12 +63,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
+
   void _showEmptyFieldAlert(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Empty Fields'),
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.orange), // Add icon here
+              SizedBox(width: 10),
+              Text('Empty Fields'),
+            ],
+          ),
           content: Text('Please fill in all fields.'),
           actions: <Widget>[
             TextButton(
@@ -70,13 +90,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Change Password'),
+        backgroundColor: Colors.deepPurple.shade600,
+
       ),
-      body: SingleChildScrollView( // Wrap with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -92,7 +115,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Current Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20.0),
@@ -106,7 +131,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'New Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20.0),
@@ -120,26 +147,33 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Confirm Password',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: () {
-                  String currentPassword = currentPasswordController.text;
-                  String newPassword = newPasswordController.text;
-                  String confirmPassword = confirmPasswordController.text;
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    String currentPassword = currentPasswordController.text;
+                    String newPassword = newPasswordController.text;
+                    String confirmPassword = confirmPasswordController.text;
 
-                  if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
-                    _showEmptyFieldAlert(context);
-                  } else if (newPassword != confirmPassword) {
-                    _showPasswordMismatchAlert(context);
-                  } else {
-                    // Perform action to change password
-                    _showPasswordChangedAlert(context);
-                  }
-                },
-                child: Text('Change Password'),
+                    if (currentPassword.isEmpty ||
+                        newPassword.isEmpty ||
+                        confirmPassword.isEmpty) {
+                      _showEmptyFieldAlert(context);
+                    } else if (newPassword != confirmPassword) {
+                      _showPasswordMismatchAlert(context);
+                    } else {
+                      // Perform action to change password
+                      _showPasswordChangedAlert(context);
+                    }
+                  },
+                  child: Text('Change Password', style: TextStyle(fontSize: 16.0)),
+                ),
               ),
             ],
           ),

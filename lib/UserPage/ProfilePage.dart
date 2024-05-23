@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -33,20 +33,20 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedFile = await _picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      final Directory appDirectory = await getApplicationDocumentsDirectory();
-      final String newPath = appDirectory.path + '/profile_image.jpg';
-      final File newImage = await File(pickedFile.path).copy(newPath);
-
-      setState(() {
-        _imagePath = newImage.path;
-      });
-    }
-  }
+  // Future<void> _pickImage(ImageSource source) async {
+  //   final ImagePicker _picker = ImagePicker();
+  //   final XFile? pickedFile = await _picker.pickImage(source: source);
+  //
+  //   if (pickedFile != null) {
+  //     final Directory appDirectory = await getApplicationDocumentsDirectory();
+  //     final String newPath = appDirectory.path + '/profile_image.jpg';
+  //     final File newImage = await File(pickedFile.path).copy(newPath);
+  //
+  //     setState(() {
+  //       _imagePath = newImage.path;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          _pickImage(ImageSource.gallery);
+                         // _pickImage(ImageSource.gallery);
                         },
                         child: CircleAvatar(
                           radius: 60,

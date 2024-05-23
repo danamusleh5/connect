@@ -1,8 +1,9 @@
+import 'package:CampusConnect/UserPage/ToDoList.dart';
 import 'package:CampusConnect/WelocomeLogIn/About.dart';
 import 'package:CampusConnect/Calendar/CalendarPage.dart';
 import 'package:CampusConnect/Library/LibraryPage.dart';
-import 'package:CampusConnect/MessagesPage.dart';
-import 'package:CampusConnect/NotificationsPage.dart';
+import 'package:CampusConnect/ChatSystem/MessagesPage.dart';
+import 'package:CampusConnect/ChatSystem/NotificationsPage.dart';
 import 'package:CampusConnect/PostWidget.dart';
 import 'package:CampusConnect/UserPage/ProfilePage.dart';
 import 'package:CampusConnect/UserPage/SettingsPage.dart';
@@ -10,6 +11,9 @@ import 'package:CampusConnect/WelocomeLogIn/WelcomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:CampusConnect/Posts.dart';
 import 'package:CampusConnect/Library/PrevoisMaterial.dart';
+import 'package:get/get.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
+
 
 
 
@@ -47,7 +51,7 @@ class Main_PageState extends State<Main_Page> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Connect'),
+          title: Text("1".tr),
         ),
         drawer: Drawer(
           child: ListView(
@@ -81,7 +85,7 @@ class Main_PageState extends State<Main_Page> {
                 ),
               ),
               _buildDrawerItem(
-                icon: Icons.calendar_month,
+                icon: Icons.calendar_month_outlined,
                 title: 'Calendar',
                 onTap: () => _navigateToPage(CalendarPage()),
               ),
@@ -125,6 +129,11 @@ class Main_PageState extends State<Main_Page> {
                 title: 'About',
                 onTap: () => _navigateToPage(AboutPage()),
 
+              ),
+              _buildDrawerItem(
+                icon: Icons.view_timeline_outlined,
+                title: 'ToDoList',
+                onTap: () => _navigateToPage(ToDoList()),
               ),
             ],
           ),

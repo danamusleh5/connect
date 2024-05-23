@@ -122,7 +122,7 @@ class _LibraryPageState extends State<Library> {
       String fileName = result.files.single.name;
       String mycourse = Globals.courseName;
       Reference reference =
-          FirebaseStorage.instance.ref().child('$mycourse/$fileName');
+      FirebaseStorage.instance.ref().child('$mycourse/$fileName');
       UploadTask uploadTask = reference.putFile(file);
       await uploadTask.whenComplete(() => print('File uploaded'));
     } else {
@@ -241,35 +241,35 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
       ),
       body: _fileNotFound
           ? Center(
-              child: Text('File not found.'),
-            )
+        child: Text('File not found.'),
+      )
           : Stack(
-              children: [
-                PDFView(
-                  filePath: widget.pdfUrl,
-                  onRender: (pages) {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  },
-                  onError: (error) {
-                    print(error.toString());
-                    setState(() {
-                      _fileNotFound = true;
-                      _isLoading = false;
-                    });
-                  },
-                  onPageError: (page, error) {
-                    print('$page: ${error.toString()}');
-                  },
-                ),
-                _isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Container(),
-              ],
-            ),
+        children: [
+          PDFView(
+            filePath: widget.pdfUrl,
+            onRender: (pages) {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            onError: (error) {
+              print(error.toString());
+              setState(() {
+                _fileNotFound = true;
+                _isLoading = false;
+              });
+            },
+            onPageError: (page, error) {
+              print('$page: ${error.toString()}');
+            },
+          ),
+          _isLoading
+              ? Center(
+            child: CircularProgressIndicator(),
+          )
+              : Container(),
+        ],
+      ),
     );
   }
 }

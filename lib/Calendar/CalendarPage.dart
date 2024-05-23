@@ -20,8 +20,15 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calendar Page'),
-        backgroundColor: Colors.deepPurple,
+        title: Text(
+            'Calendar',
+            style: TextStyle(
+          color:Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        ),
+        backgroundColor: Colors.deepPurple.shade600,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
