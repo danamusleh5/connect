@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:io';
 
 import '../constants/Colors.dart';
 import 'ToDo.dart';
@@ -12,14 +14,72 @@ class ToDoList extends StatefulWidget {
 }
 
 class _ToDoListState extends State<ToDoList> {
-  final todosList = ToDo.todoList();
-  List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
+  String _selectedPriority = 'Relatively Soon';
+  late List<ToDo> todosList = [];
+  late List<ToDo> _foundToDo = [];
+
+  final String _filePath = 'todo_list.json'; // Path to save the JSON file
 
   @override
   void initState() {
-    _foundToDo = todosList;
     super.initState();
+    _loadToDoList();
+  }
+
+  Future<void> _loadToDoList() async {
+    await ToDo.loadToDoListFromFile(_filePath);
+    setState(() {
+      todosList = ToDo.todoList;
+      _foundToDo = todosList;
+    });
+  }
+
+  Future<void> _saveToDoList() async {
+    ToDo.todoList = todosList;
+    await ToDo.saveToDoListToFile(_filePath);
+  }
+
+  void _handleToDoChange(ToDo todo) {
+    setState(() {
+      todo.isDone = !todo.isDone;
+    });
+    _saveToDoList(); // Save the updated list
+  }
+
+  void _deleteToDoItem(String id) {
+    setState(() {
+      todosList.removeWhere((item) => item.id == id);
+      _foundToDo = todosList;
+    });
+    _saveToDoList(); // Save the updated list
+  }
+
+  void _addToDoItem(String toDo, String priority) {
+    setState(() {
+      ToDo.addTodoItem(toDo, priority);
+      todosList = ToDo.todoList;
+      _foundToDo = todosList;
+    });
+    _todoController.clear();
+    _selectedPriority = 'Relatively Soon'; // Reset priority to default
+    _saveToDoList(); // Save the updated list
+  }
+
+  void _runFilter(String enteredKeyword) {
+    List<ToDo> results = [];
+    if (enteredKeyword.isEmpty) {
+      results = todosList;
+    } else {
+      results = todosList
+          .where((item) =>
+          item.todoText.toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .toList();
+    }
+
+    setState(() {
+      _foundToDo = results;
+    });
   }
 
   @override
@@ -53,9 +113,9 @@ class _ToDoListState extends State<ToDoList> {
                     ),
                   ),
                 ),
-                for (ToDo todoo in _foundToDo.reversed)
+                for (ToDo todo in _foundToDo.reversed)
                   ToDoItem(
-                    todo: todoo,
+                    todo: todo,
                     onToDoChanged: _handleToDoChange,
                     onDeleteItem: _deleteToDoItem,
                   ),
@@ -66,49 +126,6 @@ class _ToDoListState extends State<ToDoList> {
         ],
       ),
     );
-  }
-
-  void _handleToDoChange(ToDo todo) {
-    setState(() {
-      todo.isDone = !todo.isDone;
-    });
-  }
-
-  void _deleteToDoItem(String id) {
-    setState(() {
-      todosList.removeWhere((item) => item.id == id);
-    });
-  }
-
-  void _addToDoItem(String toDo) {
-    setState(() {
-      todosList.add(ToDo(
-        id: DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toString(),
-        todoText: toDo,
-      ));
-    });
-    _todoController.clear();
-  }
-
-  void _runFilter(String enteredKeyword) {
-    List<ToDo> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = todosList;
-    } else {
-      results = todosList
-          .where((item) =>
-          item.todoText!
-              .toLowerCase()
-              .contains(enteredKeyword.toLowerCase()))
-          .toList();
-    }
-
-    setState(() {
-      _foundToDo = results;
-    });
   }
 
   Widget searchBox() {
@@ -166,12 +183,31 @@ class _ToDoListState extends State<ToDoList> {
                 ],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: TextField(
-                controller: _todoController,
-                decoration: InputDecoration(
-                  hintText: 'Add a new todo item',
-                  border: InputBorder.none,
-                ),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _todoController,
+                    decoration: InputDecoration(
+                      hintText: 'Add Task',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  DropdownButton<String>(
+                    value: _selectedPriority,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedPriority = newValue!;
+                      });
+                    },
+                    items: <String>['Urgent', 'Timely', 'Relatively Soon', 'Down to line']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
           ),
@@ -184,7 +220,7 @@ class _ToDoListState extends State<ToDoList> {
               ),
             ),
             onPressed: () {
-              _addToDoItem(_todoController.text);
+              _addToDoItem(_todoController.text, _selectedPriority);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: tdBlue,
@@ -206,13 +242,6 @@ class _ToDoListState extends State<ToDoList> {
         children: [
           Row(
             children: [
-              // Icon(
-              //   Icons.title,
-              //   color: tdBlack,
-              //   size: 30,
-              // ),
-              //SizedBox(width: 8),
-              // Add some space between the icon and the title
               Text(
                 'MyList ToDo',
                 style: TextStyle(
@@ -235,4 +264,10 @@ class _ToDoListState extends State<ToDoList> {
       ),
     );
   }
-}
+
+//   @override
+//   void dispose() {
+//     _saveToDoList(); // Save the ToDo list when the widget is disposed
+//     super.dispose();
+//   }
+ }

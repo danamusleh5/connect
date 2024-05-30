@@ -1,18 +1,21 @@
-import 'package:CampusConnect/UserPage/ToDoList.dart';
+import 'package:CampusConnect/ToDoList/ToDoList.dart';
+import 'package:CampusConnect/UserPage/DartScreen.dart';
 import 'package:CampusConnect/WelocomeLogIn/About.dart';
 import 'package:CampusConnect/Calendar/CalendarPage.dart';
 import 'package:CampusConnect/Library/LibraryPage.dart';
-import 'package:CampusConnect/ChatSystem/MessagesPage.dart';
-import 'package:CampusConnect/ChatSystem/NotificationsPage.dart';
+import 'package:CampusConnect/Messages/NotificationsPage.dart';
 import 'package:CampusConnect/PostWidget.dart';
 import 'package:CampusConnect/UserPage/ProfilePage.dart';
 import 'package:CampusConnect/UserPage/SettingsPage.dart';
-import 'package:CampusConnect/WelocomeLogIn/WelcomePage.dart';
+import 'package:CampusConnect/WelocomeLogIn/LogInPage.dart';
 import 'package:flutter/material.dart';
 import 'package:CampusConnect/Posts.dart';
 import 'package:CampusConnect/Library/PrevoisMaterial.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:CampusConnect/Messages/ChatListScreen.dart';
+import 'package:provider/provider.dart';
+import 'package:CampusConnect/Messages/ChatProvider.dart';
 
 
 
@@ -36,23 +39,52 @@ class Main_Page extends StatefulWidget {
 }
 
 class Main_PageState extends State<Main_Page> {
-  int currentPage = 2;
+  int currentPage = 0;
 
   final List<Widget> _pages = [
-    CalendarPage(),
-    ProfilePage(),
     MainHomePage(),
-    MessagesPage(),
-    NotificationsPage(),
+     ProfilePage(),
+    const CalendarPage(),
+    //MessagesPage(),
+    const NotificationsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider = Provider.of<ChatProvider>(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: Text("1".tr),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.message_rounded),
+              onPressed: () async {
+                print("Messages tapped");
+                if (Globals.Friends.isEmpty) {
+                  print('No friends found');
+                  return;
+                }
+                // Create chats for all friends if they don't exist
+                for (String friendId in Globals.Friends) {
+                  print(friendId);
+                  print("HEY");
+                  await chatProvider.createChat([Globals.userID, friendId]);
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ChatListScreen(currentUserId: Globals.userID),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
+
+
         drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
@@ -87,53 +119,79 @@ class Main_PageState extends State<Main_Page> {
               _buildDrawerItem(
                 icon: Icons.calendar_month_outlined,
                 title: 'Calendar',
-                onTap: () => _navigateToPage(CalendarPage()),
+                onTap: () => _navigateToPage(const CalendarPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.book_online_sharp,
                 title: 'Library',
-                onTap: () => _navigateToPage(LibraryPage()),
+                onTap: () => _navigateToPage(const LibraryPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.library_books_outlined,
                 title: 'Previous Material',
-                onTap: () => _navigateToPage(PreviousMaterial()),
+                onTap: () => _navigateToPage(const PreviousMaterial()),
               ),
               _buildDrawerItem(
                 icon: Icons.person,
                 title: 'Profile',
-                onTap: () => _navigateToPage(ProfilePage()),
+                onTap: () => _navigateToPage( ProfileScreen()),
               ),
               _buildDrawerItem(
                 icon: Icons.notifications,
                 title: 'Notifications',
-                onTap: () => _navigateToPage(NotificationsPage()),
+                onTap: () => _navigateToPage(const NotificationsPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.settings,
                 title: 'Settings',
-                onTap: () => _navigateToPage(SettingsPage()),
+                onTap: () => _navigateToPage(const SettingsPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.login,
                 title: 'LogIn',
-                onTap: () => _navigateToPage(WelcomePage()),
+                onTap: () => _navigateToPage(LogInPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.logout,
                 title: 'LogOut',
-                onTap: () => _navigateToPage(WelcomePage()),
+                onTap: () => _navigateToPage(LogInPage()),
               ),
               _buildDrawerItem(
                 icon: Icons.info,
                 title: 'About',
-                onTap: () => _navigateToPage(AboutPage()),
+                onTap: () => _navigateToPage(const About()),
 
               ),
               _buildDrawerItem(
                 icon: Icons.view_timeline_outlined,
                 title: 'ToDoList',
                 onTap: () => _navigateToPage(ToDoList()),
+              ),
+
+              _buildDrawerItem(
+                icon: Icons.message_rounded,
+                title: 'Messages',
+                  onTap: () async {
+                    print("Messages tapped");
+                    if (Globals.Friends.isEmpty) {
+                      print('No friends found');
+                      return;
+                    }
+                    // Create chats for all friends if they don't exist
+                    for (String friendId in Globals.Friends) {
+                      print(friendId);
+                      print("HEY");
+                      await chatProvider.createChat([Globals.userID, friendId]);
+                    }
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ChatListScreen(currentUserId: Globals.userID),
+                      ),
+                    );
+                  },
               ),
             ],
           ),
@@ -148,13 +206,13 @@ class Main_PageState extends State<Main_Page> {
           },
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_month_outlined), label: 'Calendar'),
+                icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.person), label: 'Profile'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.message), label: 'Messages'),
+                icon: Icon(Icons.calendar_month_outlined), label: 'Calendar'),
+            // BottomNavigationBarItem(
+            //     icon: Icon(Icons.message), label: 'Messages'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.notifications), label: 'Notifications'),
           ],

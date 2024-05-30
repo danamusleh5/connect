@@ -6,6 +6,8 @@ import 'package:CampusConnect/Calendar/AppointmentDetailsPage.dart';
 import 'package:CampusConnect/main.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../WelocomeLogIn/LogInPage.dart';
+
 class CalendarPage extends StatefulWidget {
   const CalendarPage({Key? key}) : super(key: key);
 

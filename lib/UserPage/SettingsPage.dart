@@ -1,5 +1,6 @@
 import 'package:CampusConnect/Locale/locale_controller.dart';
 import 'package:CampusConnect/UserPage/ChangePasswordPage.dart';
+import 'package:CampusConnect/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -31,7 +32,8 @@ class _SettingsPageState extends State<SettingsPage> {
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
-        ),      ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -52,6 +54,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     setState(() {
                       isDarkModeEnabled = value;
                       // Perform action to change theme to dark mode
+                      MyApp.themeNotifier.value = MyApp.themeNotifier.value == ThemeMode.light
+                          ?ThemeMode.dark : ThemeMode.light;
                     });
                   },
                 ),

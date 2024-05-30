@@ -1,17 +1,112 @@
-import 'package:animate_do/animate_do.dart';
-import 'package:CampusConnect/WelocomeLogIn/About.dart';
+import 'package:CampusConnect/Posts.dart';
+import 'package:CampusConnect/WelocomeLogIn/WelcomePage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:CampusConnect/Calendar/Appointments.dart';
+import 'package:CampusConnect/Main_Page.dart';
+import 'About.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LogInPage(),
-    )
-);
+class Globals {
+  static String userID = "";
+  static String roll = "";
+  static List<String> Schedule = [];
+  static List<String> Friends = [];
+  static String courseName = "";
+  static List<Map<String, Map<String, List<String>>>> categories = [];
+  static Appointments app = Appointments(
+      id: "1192016",
+      subject: "subject",
+      description: "description",
+      date: DateTime(2024, 9, 9, 9),
+      startTime: DateTime(2024, 9, 9, 9),
+      appointmentLength: 2,
+      location: "location",
+      status: "Private");
+  static Future<void> saveToPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userID', userID);
+    await prefs.setString('roll', roll);
+    await prefs.setStringList('Schedule', Schedule);
+    await prefs.setStringList('Friends', Friends);
+    await prefs.setString('courseName', courseName);
+    // Serialize and save other complex data if needed
+  }
 
-class LogInPage extends StatefulWidget {
+  static Future<void> loadFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userID = prefs.getString('userID') ?? '';
+    roll = prefs.getString('roll') ?? '';
+    Schedule = prefs.getStringList('Schedule') ?? [];
+    Friends = prefs.getStringList('Friends') ?? [];
+    courseName = prefs.getString('courseName') ?? '';
+    // Deserialize and load other complex data if needed
+  }
+}
+
+// Future<void> main() async {
+//   //WidgetsFlutterBinding.ensureInitialized();
+//   runApp(LogInPage());
+//   await Firebase.initializeApp(
+//     options: const FirebaseOptions(
+//         apiKey: "AIzaSyDK07y9RLzWSoLPrxAgY_gegeL-_qNsY8M",
+//         appId: "1:476838126677:android:a4b14bb36537f271d960dc",
+//         messagingSenderId: "476838126677",
+//         projectId: "campus-connect-3917b",
+//         storageBucket: "campus-connect-3917b.appspot.com"),
+//   );
+// }
+  Future<int> fetchData(List<Posts> posts) async {
+    QuerySnapshot querySnapshot =
+  await FirebaseFirestore.instance.collection('Posts').get();
+  querySnapshot.docs.forEach((doc) {
+    var field1 = doc.get("caption");
+    var field2 = doc.get("likeCounter");
+    var field3 = doc.get("postImageUrl");
+    var field4 = doc.get("userImageUrl");
+    var field5 = doc.get("userName");
+
+    Posts post = Posts(
+        caption: field1,
+        likeCounter: field2,
+        postImageUrl: field3,
+        userImageUrl: field4,
+        userName: field5);
+    posts.add(post);
+  });
+  return 0;
+}
+
+Future<bool> fetchUserData(String email, String password) async {
+  bool check = false;
+  QuerySnapshot querySnapshot =
+  await FirebaseFirestore.instance.collection('Users').get();
+  querySnapshot.docs.forEach((doc) {
+    var myemail = doc.get("email");
+    var mypassword = doc.get("password");
+
+    if (myemail == email && mypassword == password) {
+      check = true;
+      Globals.userID = doc.get("firstName");
+      Globals.roll = doc.get("role");
+      List<dynamic> scheduleFromFirestore = doc.get("Schedule");
+      Globals.Schedule = List<String>.from(
+          scheduleFromFirestore.map((schedule) => schedule.toString()));
+      Globals.Schedule.addAll(['Private', 'Public']);
+      List<dynamic> friendsFromFirestore = doc.get("Friends");
+      Globals.Friends = List<String>.from(
+          friendsFromFirestore.map((friends) => friends.toString()));
+      Globals.saveToPreferences();
+    }
+  });
+  return check;
+}
+//////////////////////////////////////////////////////
+
+  class LogInPage extends StatefulWidget {
   @override
   _LogInPageState createState() => _LogInPageState();
 }
@@ -20,6 +115,10 @@ class _LogInPageState extends State<LogInPage> {
   bool _keepLoggedIn = false;
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  bool _showPassword = false; // AdFpaad this line
+  final TextEditingController passwordController = TextEditingController();
+
+
 
   @override
   void initState() {
@@ -34,6 +133,7 @@ class _LogInPageState extends State<LogInPage> {
       if (_keepLoggedIn) {
         _usernameController.text = prefs.getString('username') ?? '';
         _passwordController.text = prefs.getString('password') ?? '';
+        Globals.loadFromPreferences();
       }
     });
   }
@@ -50,22 +150,48 @@ class _LogInPageState extends State<LogInPage> {
     }
   }
 
+  void _showAlertDialog(String message, IconData iconData, Color iconColor) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                iconData,
+                color: iconColor,
+              ),
+              SizedBox(width: 10),
+              Text("Alert"),
+            ],
+          ),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          width: double.infinity,
+          height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  colors: [
-                    Colors.deepPurple.shade700,
-                    Colors.deepPurpleAccent,
-                    Colors.purple.shade300
-                  ]
-              )
-          ),
+              gradient: LinearGradient(begin: Alignment.topCenter, colors: [
+                Colors.deepPurple.shade700,
+                Colors.deepPurpleAccent,
+                Colors.purple.shade300
+              ])),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -74,142 +200,248 @@ class _LogInPageState extends State<LogInPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    FadeInUp(duration: Duration(milliseconds: 1000), child: Text("Login", style: TextStyle(color: Colors.white, fontSize: 40),)),
-                    SizedBox(height: 10,),
-                    FadeInUp(duration: Duration(milliseconds: 1300), child: Text("Welcome Back", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                    FadeInUp(
+                        duration: Duration(milliseconds: 1000),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(color: Colors.white, fontSize: 40),
+                        )),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    FadeInUp(
+                        duration: Duration(milliseconds: 1300),
+                        child: Text(
+                          "Welcome Back",
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        )),
                   ],
                 ),
               ),
               SizedBox(height: 20),
-              Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60))
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(30),
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(height: 60,),
-                      FadeInUp(duration: Duration(milliseconds: 1400), child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [BoxShadow(
-                                color: Color.fromRGBO(225, 95, 27, .3),
-                                blurRadius: 20,
-                                offset: Offset(0, 10)
-                            )]
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(60),
+                          topRight: Radius.circular(60))),
+                  child: Padding(
+                    padding: EdgeInsets.all(30),
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: 60,
                         ),
-                        child: Column(
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1400),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Color.fromRGBO(225, 95, 27, .3),
+                                        blurRadius: 20,
+                                        offset: Offset(0, 10))
+                                  ]),
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.grey.shade200))),
+                                    child: TextField(
+                                      controller: _usernameController,
+                                      decoration: InputDecoration(
+                                          hintText: "UserName",
+                                          hintStyle:
+                                          TextStyle(color: Colors.grey),
+                                          border: InputBorder.none),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                color: Colors.grey.shade200))),
+                                    child: TextField(
+                                      controller: _passwordController,
+                                      obscureText: true,
+                                      decoration: InputDecoration(
+                                        hintText: "Password",
+                                        hintStyle:
+                                        TextStyle(color: Colors.grey),
+                                        border: InputBorder.none,
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _showPassword ? Icons.visibility : Icons.visibility_off,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _showPassword = !_showPassword;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1500),
+                            child: Row(
+                              children: <Widget>[
+                                Checkbox(
+                                  value: _keepLoggedIn,
+                                  onChanged: (bool? newValue) {
+                                    setState(() {
+                                      _keepLoggedIn = newValue!;
+                                    });
+                                    _saveCredentials();
+                                  },
+                                ),
+                                Text("Remember Me",
+                                    style: TextStyle(color: Colors.grey)),
+                              ],
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1500),
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(color: Colors.grey),
+                            )),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1600),
+                            child: MaterialButton(
+                              onPressed: () async {
+                                String email = _usernameController.text;
+                                String password = _passwordController.text;
+                                if (email.isEmpty || password.isEmpty) {
+                                  _showAlertDialog(
+                                    "Please enter both username and password.",
+                                    Icons.error,
+                                    Colors.red,
+                                  );
+                                } else {
+                                  if (await fetchUserData(email, password)) {
+                                    _saveCredentials();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Main_Page()),
+
+                                    );
+                                  } else {
+                                    _showAlertDialog(
+                                      "Incorrect username or password.",
+                                      Icons.warning,
+                                      Colors.yellow,
+                                    );
+                                  }
+                                }
+                              },
+
+                              height: 50,
+                              color: Colors.deepPurple[700],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            )),
+                        SizedBox(
+                          height: 50,
+                        ),
+                        FadeInUp(
+                            duration: Duration(milliseconds: 1700),
+                            child: Text(
+                              "Continue with Ritaj",
+                              style: TextStyle(color: Colors.grey),
+                            )),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Row(
                           children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200))
-                              ),
-                              child: TextField(
-                                controller: _usernameController,
-                                decoration: InputDecoration(
-                                    hintText: "UserName",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: InputBorder.none
-                                ),
-                              ),
+                            Expanded(
+                              child: FadeInUp(
+                                  duration: Duration(milliseconds: 1800),
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      const url =
+                                          'https://ritaj.birzeit.edu/register/';
+                                      launch(url);
+                                    },
+                                    height: 50,
+                                    color: Colors.green[900],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Ritaj",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  )),
                             ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200))
-                              ),
-                              child: TextField(
-                                controller: _passwordController,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                    hintText: "Password",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: InputBorder.none
-                                ),
-                              ),
+                            SizedBox(
+                              width: 30,
                             ),
+                            Expanded(
+                              child: FadeInUp(
+                                  duration: Duration(milliseconds: 1900),
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const About()),
+                                      );
+                                    },
+                                    height: 50,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    color: Colors.black,
+                                    child: Center(
+                                      child: Text(
+                                        "VisitorPick",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  )),
+                            )
                           ],
-                        ),
-                      )),
-                      SizedBox(height: 20,),
-                      Row(
-                        children: <Widget>[
-                          Checkbox(
-                            value: _keepLoggedIn,
-                            onChanged: (bool? newValue) {
-                              setState(() {
-                                _keepLoggedIn = newValue!;
-                              });
-                              _saveCredentials();
-                            },
-                          ),
-                          Text("Remember Me", style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                      SizedBox(height: 20,),
-                      FadeInUp(duration: Duration(milliseconds: 1500), child: Text("Forgot Password?", style: TextStyle(color: Colors.grey),)),
-                      SizedBox(height: 40,),
-                      FadeInUp(duration: Duration(milliseconds: 1600), child: MaterialButton(
-                        onPressed: () {
-                          // Add login logic here
-                          _saveCredentials();
-                        },
-                        height: 50,
-                        color: Colors.deepPurple[700],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Center(
-                          child: Text("Login", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                        ),
-                      )),
-                      SizedBox(height: 50,),
-                      FadeInUp(duration: Duration(milliseconds: 1700), child: Text("Continue with Ritaj", style: TextStyle(color: Colors.grey),)),
-                      SizedBox(height: 30,),
-                      Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: FadeInUp(duration: Duration(milliseconds: 1800), child: MaterialButton(
-                              onPressed: () {
-                                const url = 'https://ritaj.birzeit.edu/register/';
-                                launch(url);
-                              },
-                              height: 50,
-                              color: Colors.green[900],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: Center(
-                                child: Text("Ritaj", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                              ),
-                            )),
-                          ),
-                          SizedBox(width: 30,),
-                          Expanded(
-                            child: FadeInUp(duration: Duration(milliseconds: 1900), child: MaterialButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => AboutPage()),
-                                );
-                              },
-                              height: 50,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              color: Colors.black,
-                              child: Center(
-                                child: Text("VisitorPick", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                              ),
-                            )),
-                          )
-                        ],
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

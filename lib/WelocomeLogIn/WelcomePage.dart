@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:CampusConnect/Main_Page.dart';
 import 'package:flutter/material.dart';
 import 'LogInPage.dart';
 import 'package:animate_do/animate_do.dart';
@@ -14,10 +15,10 @@ class _WelcomePageState extends State<WelcomePage> {
     super.initState();
 
     // Navigate to LogInPage after 5 seconds
-    Timer(const Duration(seconds: 5), () {
+    Timer(const Duration(seconds: 3), () {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LogInPage()),
+        MaterialPageRoute(builder: (context) =>  LogInPage()),
       );
     });
   }
