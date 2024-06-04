@@ -1,4 +1,6 @@
+import 'package:CampusConnect/HomePage.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.green), // Add icon here
+              Icon(Icons.check_circle, color: Colors.green),
               SizedBox(width: 10),
               Text('Password Changed'),
             ],
@@ -36,7 +38,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-
   void _showPasswordMismatchAlert(BuildContext context) {
     showDialog(
       context: context,
@@ -44,7 +45,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.error, color: Colors.red), // Add icon here
+              Icon(Icons.error, color: Colors.red),
               SizedBox(width: 10),
               Text('Passwords Mismatch'),
             ],
@@ -63,7 +64,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-
   void _showEmptyFieldAlert(BuildContext context) {
     showDialog(
       context: context,
@@ -71,7 +71,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.orange), // Add icon here
+              Icon(Icons.error_outline, color: Colors.orange),
               SizedBox(width: 10),
               Text('Empty Fields'),
             ],
@@ -90,21 +90,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
-            'Change Password',
-            style: TextStyle(
-            color: Colors.white70,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-         ),
+          "password".tr,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.deepPurple.shade600,
-
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -123,8 +122,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 decoration: InputDecoration(
                   hintText: 'Current Password',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.deepPurple),
                   ),
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  prefixIcon: Icon(Icons.lock_open, color: Colors.deepPurple),
                 ),
               ),
               SizedBox(height: 20.0),
@@ -139,8 +142,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 decoration: InputDecoration(
                   hintText: 'New Password',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.deepPurple),
                   ),
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  prefixIcon: Icon(Icons.lock, color: Colors.deepPurple),
                 ),
               ),
               SizedBox(height: 20.0),
@@ -155,11 +162,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 decoration: InputDecoration(
                   hintText: 'Confirm Password',
                   border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.deepPurple),
                   ),
+                  filled: true,
+                  fillColor: Colors.deepPurple.shade50,
+                  prefixIcon: Icon(Icons.lock, color: Colors.deepPurple),
                 ),
               ),
-              SizedBox(height: 20.0),
+              SizedBox(height: 30.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -180,6 +191,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     }
                   },
                   child: Text('Change Password', style: TextStyle(fontSize: 16.0)),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    backgroundColor: Colors.deepPurple,
+                    textStyle: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:CampusConnect/Locale/locale.dart';
+import 'package:CampusConnect/Messages/NotificationsPage.dart';
 import 'package:CampusConnect/WelocomeLogIn/LogInPage.dart';
+import 'package:CampusConnect/api/firebase_api.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,16 +13,19 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:CampusConnect/Posts.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:CampusConnect/Messages/ChatProvider.dart';
 import 'Locale/locale_controller.dart';
 
-
+ /////Notifications
+ final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyDK07y9RLzWSoLPrxAgY_gegeL-_qNsY8M",
@@ -29,6 +34,10 @@ Future<void> main() async {
         projectId: "campus-connect-3917b",
         storageBucket: "campus-connect-3917b.appspot.com"),
   );
+    await FirebaseApi().initNotifications();
+
+
+
   // AwesomeNotifications().initialize(
   //   null,
   //   [
@@ -66,12 +75,19 @@ class MyApp extends StatelessWidget {
       translations: MyLocale(),
       // home: const MyHomePage(title: 'Connect Login'),
             home:  SplashScreen(),
-      ),
+            routes: {
+              NotificationsPage.route: (context) => NotificationsPage(),
+
+          },
+         )
       );
      }
     );
 
   }
+
+
+
 }
 ////////////////////////////////////////////////////
 class SplashScreen extends StatefulWidget {
@@ -84,6 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _navigateToNextScreen();
+
   }
 
   Future<void> _navigateToNextScreen() async {

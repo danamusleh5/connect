@@ -1,9 +1,11 @@
+import 'package:CampusConnect/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:CampusConnect/Calendar/Appointments.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:CampusConnect/Calendar/Addappointment.dart';
 import 'package:CampusConnect/Calendar/AppointmentDetailsPage.dart';
 import 'package:CampusConnect/main.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../WelocomeLogIn/LogInPage.dart';
@@ -22,8 +24,9 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
-            'Calendar',
+            "calendar".tr,
             style: TextStyle(
           color:Colors.white,
           fontSize: 20,
@@ -153,8 +156,18 @@ class _CalendarPageState extends State<CalendarPage> {
       Color appointmentColor = Colors.blue;
 
       if (field5 == Globals.userID) {
-        appointmentColor = Colors.red;
+        if (field6 == "Private"){
+          appointmentColor = Colors.red;
+        } else if (field6 == "Public"){
+          appointmentColor = Colors.blue;
+        }else
+          appointmentColor = Colors.yellowAccent;
       }
+      else if (field5 == "university")
+        {
+          appointmentColor = Colors.green.shade600;
+
+        }
 
       for (int i = 0; i < Globals.Schedule.length; i++) {
         if (Globals.Schedule[i] == "Public" ||

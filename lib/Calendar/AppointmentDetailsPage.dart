@@ -18,6 +18,7 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Appointment Details',
           style: TextStyle(color: Colors.white),

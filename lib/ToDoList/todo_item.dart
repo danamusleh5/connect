@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'ToDo.dart';
+import '../constants/Colors.dart';
+import 'todo.dart';
 
 class ToDoItem extends StatelessWidget {
   final ToDo todo;
@@ -16,63 +17,46 @@ class ToDoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-              todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
-              color: todo.isDone ? Colors.deepPurple : Colors.grey,
-            ),
+      margin: EdgeInsets.only(bottom: 20),
+      child: ListTile(
+        onTap: () {
+          onToDoChanged(todo);
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        tileColor: Colors.white,
+        leading: Icon(
+          todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+          color: tdBlue,
+        ),
+        title: Text(
+          todo.todoText,
+          style: TextStyle(
+            fontSize: 16,
+            color: tdBlack,
+            decoration: todo.isDone ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        trailing: Container(
+          padding: EdgeInsets.all(0),
+          margin: EdgeInsets.symmetric(vertical: 12),
+          height: 35,
+          width: 35,
+          decoration: BoxDecoration(
+            color: tdRed,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: IconButton(
+            color: Colors.white,
+            iconSize: 18,
+            icon: Icon(Icons.delete),
             onPressed: () {
-              onToDoChanged(todo);
+              onDeleteItem(todo.id);
             },
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: todo.isDone ? Colors.grey.shade300 : Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onPressed: () {},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        todo.todoText,
-                        style: TextStyle(
-                          fontSize: 16,
-                          decoration: todo.isDone ? TextDecoration.lineThrough : null,
-                        ),
-                      ),
-                      Text(
-                        'Priority: ${todo.priority}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.deepPurple),
-                    onPressed: () {
-                      onDeleteItem(todo.id);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

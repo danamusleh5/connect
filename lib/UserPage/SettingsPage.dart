@@ -17,174 +17,234 @@ class _SettingsPageState extends State<SettingsPage> {
   bool areNotificationsEnabled = true;
   bool isAutoSaveEnabled = false;
   bool isLocationEnabled = true;
+  bool isLockedApp = false;
+  bool useFingerPrint = true;
   double fontSize = 16;
+
+  List<Map<String, String>> languageItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    updateLanguageItems();
+  }
+
+  void updateLanguageItems() {
+    setState(() {
+      languageItems = [
+        {'value': 'English', 'text': 'english'.tr},
+        {'value': 'Arabic', 'text': 'arabic'.tr},
+        {'value': 'Spanish', 'text': 'spanish'.tr},
+        {'value': 'French', 'text': 'french'.tr},
+      ];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     MyLocaleController controllerLang = Get.find();
     return Scaffold(
       appBar: AppBar(
-       backgroundColor: Colors.deepPurple.shade600 ,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.deepPurple.shade600,
         title: Text(
-          'Settings',
+          "settings".tr,
           style: TextStyle(
-            color:Colors.white,
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.dark_mode_outlined,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Dark Mode'),
-                subtitle: Text('Enable or disable dark mode'),
-                trailing: Switch(
-                  value: isDarkModeEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      isDarkModeEnabled = value;
-                      // Perform action to change theme to dark mode
-                      MyApp.themeNotifier.value = MyApp.themeNotifier.value == ThemeMode.light
-                          ?ThemeMode.dark : ThemeMode.light;
-                    });
-                  },
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.language_outlined,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Language'),
-                subtitle: DropdownButton<String>(
-                  value: selectedLanguage,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedLanguage = newValue!;
-                      if (selectedLanguage == 'Arabic') {
-                        controllerLang.changeLanguage("ar");
-                      // } else if (selectedLanguage == 'French') {
-                      //   controllerLang.changeLanguage("fr");
-                      } else {
-                        controllerLang.changeLanguage("en");
-                      }
-                    });
-                  },
-                  items: ['English', 'Arabic', 'Spanish', 'French'].map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(key.tr),
-                    );
-                  }).toList(),
-                ),
-              ),
-
-              ListTile(
-                leading: Icon(
-                  Icons.notifications,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Notifications'),
-                subtitle: Text('Allow Notifications'),
-                trailing: Switch(
-                  value: areNotificationsEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      areNotificationsEnabled = value;
-                      // Perform action to enable or disable notifications
-                    });
-                  },
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.save_sharp,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Auto Save'),
-                subtitle: Text('Enable or disable auto save feature'),
-                trailing: Switch(
-                  value: isAutoSaveEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      isAutoSaveEnabled = value;
-                      // Perform action to enable or disable auto save feature
-                    });
-                  },
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.location_on_sharp,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Location'),
-                subtitle: Text('Enable or disable location services'),
-                trailing: Switch(
-                  value: isLocationEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      isLocationEnabled = value;
-                      // Perform action to enable or disable location services
-                    });
-                  },
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.text_fields,
-                  color: Colors.deepPurple.shade400,
-                  size: 30,
-                ),
-                title: Text('Font Size: ${fontSize.toInt()}'),
-                subtitle: Slider(
-                  value: fontSize,
-                  min: 12,
-                  max: 24,
-                  divisions: 4,
-                  onChanged: (value) {
-                    setState(() {
-                      fontSize = value;
-                      // Perform action to change font size
-                    });
-                  },
-                ),
-              ),
-              SizedBox(height: 20), // Add some space above the button
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ChangePasswordPage()),
-                    );
-                  },
-                  icon: Icon(Icons.lock_outline),
-                  label: Text('Change Password'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.deepPurple.shade400, // Text color
+      body: ListView(
+        padding: EdgeInsets.only(top: 8.0), // Add padding to the top
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.dark_mode_outlined,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("dark".tr),
+                  subtitle: Text("dark1".tr),
+                  trailing: Switch(
+                    value: isDarkModeEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        isDarkModeEnabled = value;
+                        // Perform action to change theme to dark mode
+                        MyApp.themeNotifier.value = MyApp.themeNotifier.value == ThemeMode.light
+                            ? ThemeMode.dark
+                            : ThemeMode.light;
+                      });
+                    },
                   ),
                 ),
-              ),
-              SizedBox(height: 20), // Add some space below the button if needed
-              // Add more settings as needed
-            ],
+                ListTile(
+                  leading: Icon(
+                    Icons.language_outlined,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("language".tr),
+                  subtitle: DropdownButton<String>(
+                    value: selectedLanguage,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedLanguage = newValue!;
+                        if (selectedLanguage == 'Arabic') {
+                          controllerLang.changeLanguage("ar");
+                        } else {
+                          controllerLang.changeLanguage("en");
+                        }
+                        updateLanguageItems();
+                      });
+                    },
+                    items: languageItems.map((item) {
+                      return DropdownMenuItem<String>(
+                        value: item['value'],
+                        child: Text(item['text']!),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.notifications,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("notification".tr),
+                  subtitle: Text("noti".tr),
+                  trailing: Switch(
+                    value: areNotificationsEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        areNotificationsEnabled = value;
+                        // Perform action to enable or disable notifications
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.save_sharp,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("save".tr),
+                  subtitle: Text("save1".tr),
+                  trailing: Switch(
+                    value: isAutoSaveEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        isAutoSaveEnabled = value;
+                        // Perform action to enable or disable auto save feature
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.location_on_sharp,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("location".tr),
+                  subtitle: Text("location1".tr),
+                  trailing: Switch(
+                    value: isLocationEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        isLocationEnabled = value;
+                        // Perform action to enable or disable location services
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.text_fields,
+                    color: Colors.deepPurple.shade500,
+                    size: 30,
+                  ),
+                  title: Text("font".trArgs([fontSize.toInt().toString()])),
+                  subtitle: Slider(
+                    value: fontSize,
+                    min: 12,
+                    max: 24,
+                    divisions: 4,
+                    onChanged: (value) {
+                      setState(() {
+                        fontSize = value;
+                        // Perform action to change font size
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.phonelink_lock_sharp,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("lock".tr),
+                  subtitle: Text("lock1".tr),
+                  trailing: Switch(
+                    value: isLockedApp,
+                    onChanged: (value) {
+                      setState(() {
+                        isLockedApp = value;
+                        // Perform action to enable or disable location services
+                      });
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.fingerprint_outlined,
+                    color: Colors.deepPurple.shade400,
+                    size: 30,
+                  ),
+                  title: Text("fingerprint".tr),
+                  subtitle: Text("fingerprint1".tr),
+                  trailing: Switch(
+                    value: useFingerPrint,
+                    onChanged: (value) {
+                      setState(() {
+                        useFingerPrint = value;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: 20), // Add some space above the button
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+                      );
+                    },
+                    icon: Icon(Icons.lock_outline),
+                    label: Text("password".tr),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.deepPurple.shade400, // Text color
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20), // Add some space below the button if needed
+                // Add more settings as needed
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

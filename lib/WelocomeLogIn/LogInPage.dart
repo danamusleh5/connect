@@ -1,3 +1,4 @@
+import 'package:CampusConnect/HomePage.dart';
 import 'package:CampusConnect/Posts.dart';
 import 'package:CampusConnect/WelocomeLogIn/WelcomePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 class Globals {
   static String userID = "";
   static String roll = "";
@@ -191,7 +191,9 @@ class _LogInPageState extends State<LogInPage> {
                 Colors.deepPurple.shade700,
                 Colors.deepPurpleAccent,
                 Colors.purple.shade300
-              ])),
+               ],
+              ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -231,7 +233,7 @@ class _LogInPageState extends State<LogInPage> {
                     child: Column(
                       children: <Widget>[
                         SizedBox(
-                          height: 60,
+                          height: 20,
                         ),
                         FadeInUp(
                             duration: Duration(milliseconds: 1400),
@@ -339,6 +341,16 @@ class _LogInPageState extends State<LogInPage> {
                                 } else {
                                   if (await fetchUserData(email, password)) {
                                     _saveCredentials();
+                                     if(Globals.roll == 'admin' ){
+                                       Navigator.push(
+                                         context,
+                                         MaterialPageRoute(
+                                             builder: (context) =>
+                                                 HomePage()),
+
+                                       );
+                                     }
+                                    else
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -346,7 +358,10 @@ class _LogInPageState extends State<LogInPage> {
                                               Main_Page()),
 
                                     );
-                                  } else {
+
+
+                                  }
+                                  else {
                                     _showAlertDialog(
                                       "Incorrect username or password.",
                                       Icons.warning,

@@ -16,4 +16,5 @@ class Users {
     required this.major,
     required this.role,
   });
+
 }

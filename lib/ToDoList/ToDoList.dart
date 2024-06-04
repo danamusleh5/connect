@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:io';
-
 import '../constants/Colors.dart';
-import 'ToDo.dart';
+import 'todo.dart';
 import 'todo_item.dart';
 
 class ToDoList extends StatefulWidget {
@@ -19,8 +16,6 @@ class _ToDoListState extends State<ToDoList> {
   late List<ToDo> todosList = [];
   late List<ToDo> _foundToDo = [];
 
-  final String _filePath = 'todo_list.json'; // Path to save the JSON file
-
   @override
   void initState() {
     super.initState();
@@ -28,23 +23,18 @@ class _ToDoListState extends State<ToDoList> {
   }
 
   Future<void> _loadToDoList() async {
-    await ToDo.loadToDoListFromFile(_filePath);
+    await ToDo.loadToDoListFromFirebase();
     setState(() {
       todosList = ToDo.todoList;
       _foundToDo = todosList;
     });
   }
 
-  Future<void> _saveToDoList() async {
-    ToDo.todoList = todosList;
-    await ToDo.saveToDoListToFile(_filePath);
-  }
-
   void _handleToDoChange(ToDo todo) {
     setState(() {
       todo.isDone = !todo.isDone;
     });
-    _saveToDoList(); // Save the updated list
+    ToDo.updateToDoItem(todo);
   }
 
   void _deleteToDoItem(String id) {
@@ -52,7 +42,7 @@ class _ToDoListState extends State<ToDoList> {
       todosList.removeWhere((item) => item.id == id);
       _foundToDo = todosList;
     });
-    _saveToDoList(); // Save the updated list
+    ToDo.deleteToDoItem(id);
   }
 
   void _addToDoItem(String toDo, String priority) {
@@ -62,8 +52,7 @@ class _ToDoListState extends State<ToDoList> {
       _foundToDo = todosList;
     });
     _todoController.clear();
-    _selectedPriority = 'Relatively Soon'; // Reset priority to default
-    _saveToDoList(); // Save the updated list
+    _selectedPriority = 'Relatively Soon';
   }
 
   void _runFilter(String enteredKeyword) {
@@ -71,10 +60,7 @@ class _ToDoListState extends State<ToDoList> {
     if (enteredKeyword.isEmpty) {
       results = todosList;
     } else {
-      results = todosList
-          .where((item) =>
-          item.todoText.toLowerCase().contains(enteredKeyword.toLowerCase()))
-          .toList();
+      results = todosList.where((item) => item.todoText.toLowerCase().contains(enteredKeyword.toLowerCase())).toList();
     }
 
     setState(() {
@@ -257,17 +243,11 @@ class _ToDoListState extends State<ToDoList> {
             width: 40,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.asset('assets/images/avatar.jpeg'),
+              child: Image.asset('assets/images/profile.png'),
             ),
           ),
         ],
       ),
     );
   }
-
-//   @override
-//   void dispose() {
-//     _saveToDoList(); // Save the ToDo list when the widget is disposed
-//     super.dispose();
-//   }
- }
+}

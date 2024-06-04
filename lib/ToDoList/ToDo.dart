@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ToDo {
   String id;
@@ -19,7 +18,7 @@ class ToDo {
       id: json['id'],
       todoText: json['todoText'],
       isDone: json['isDone'] ?? false,
-      priority: json['priority'] ?? 'Relatively Soon', // Default priority
+      priority: json['priority'] ?? 'Relatively Soon',
     );
   }
 
@@ -34,22 +33,39 @@ class ToDo {
 
   static void addTodoItem(String text, String priority) {
     var newId = DateTime.now().millisecondsSinceEpoch.toString();
-    var newItem = ToDo(id: newId, todoText: text, priority: priority);
+    var newItem = ToDo(
+      id: newId,
+      todoText: text,
+      priority: priority,
+    );
     todoList.add(newItem);
+    FirebaseFirestore.instance.collection('todolist').doc(newId).set(newItem.toJson()).catchError((error) {
+      print("Failed to add todo: $error");
+    });
   }
 
-  static Future<void> saveToDoListToFile(String filePath) async {
-    var jsonList = todoList.map((todo) => todo.toJson()).toList();
-    var jsonString = json.encode(jsonList);
-    await File(filePath).writeAsString(jsonString);
+  static Future<void> loadToDoListFromFirebase() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance.collection('todolist').get();
+      todoList = querySnapshot.docs.map((doc) => ToDo.fromJson(doc.data())).toList();
+    } catch (error) {
+      print("Failed to load todos: $error");
+    }
   }
 
-  static Future<void> loadToDoListFromFile(String filePath) async {
-    var file = File(filePath);
-    if (await file.exists()) {
-      var jsonString = await file.readAsString();
-      var jsonList = json.decode(jsonString) as List<dynamic>;
-      todoList = jsonList.map((item) => ToDo.fromJson(item)).toList();
+  static Future<void> updateToDoItem(ToDo todo) async {
+    try {
+      await FirebaseFirestore.instance.collection('todolist').doc(todo.id).update(todo.toJson());
+    } catch (error) {
+      print("Failed to update todo: $error");
+    }
+  }
+
+  static Future<void> deleteToDoItem(String id) async {
+    try {
+      await FirebaseFirestore.instance.collection('todolist').doc(id).delete();
+    } catch (error) {
+      print("Failed to delete todo: $error");
     }
   }
 }
